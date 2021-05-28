@@ -1,5 +1,57 @@
 # Nanoc news
 
+## 4.12.2 (2021-05-28)
+
+Enhancements:
+
+- Add support for `video/@poster` to relativize_paths (#1544) [Masayuki Higashino]
+
+## 4.12.1 (2021-04-05)
+
+Enhancements:
+
+- Made Nanoc expand paths containing `~` (home directory) in the filesystem data source configuration (!4, !5, !6)
+
+## 4.12.0 (2021-02-20)
+
+Features:
+
+- Added `-W`/`--watch` flag to the `compile` command (requires the `nanoc-live` gem)
+
+Enhancements:
+
+- Made the compiler cache binary items
+
+## 4.11.23 (2021-01-16)
+
+Fixes:
+
+- Fixed issue which could cause nanoc-live to keep running and use 100% CPU (#1538)
+
+## 4.11.22 (2021-01-01)
+
+Changes:
+
+- Dropped support for Ruby 2.4 (EOL)
+
+Fixes:
+
+- Added support for Ruby 3.0
+
+## 4.11.21 (2020-12-18)
+
+Fixes:
+
+- Made clonefile usage optional
+
+You can add `clonefile` to your Gemfile to let Nanoc make use of your filesystem’s copy-on-write functionality (if available), which is not only faster but also more space-efficient. In the previous release, 4.11.20, clonefile was mandatory, even though it won’t properly compile on older operating systems.
+
+## 4.11.20 (2020-12-18)
+
+Enhancements:
+
+- Made Nanoc use copy-on-write when available (preferred over hardlinking/copying) (#1509, #1511) [Daniel Aleksandersen]
+
 ## 4.11.19 (2020-10-16)
 
 Fixes:

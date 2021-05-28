@@ -13,7 +13,6 @@ gemspec path: 'nanoc-spec'
 gemspec path: 'guard-nanoc'
 
 group :devel do
-  gem 'codecov', require: false
   gem 'contracts', '~> 0.16'
   gem 'fuubar'
   gem 'guard-rake'
@@ -29,13 +28,17 @@ group :devel do
   gem 'rspec-mocks'
   gem 'rspec_junit_formatter', '~> 0.4.1'
   gem 'rubocop'
+  gem 'rubocop-minitest'
+  gem 'rubocop-rake'
   gem 'rubocop-rspec'
+  gem 'simplecov', '~> 0.21.2'
   gem 'timecop'
   gem 'tty-command', '~> 0.8'
   gem 'vcr'
   gem 'webmock'
   gem 'yard'
   gem 'yard-contracts'
+  gem 'webrick', '~> 1.7'
 end
 
 group :plugins do
@@ -45,6 +48,7 @@ group :plugins do
   gem 'bluecloth', platforms: :ruby
   gem 'builder'
   gem 'coderay'
+  gem 'clonefile', '~> 0.5.2'
   gem 'coffee-script'
   gem 'duktape', '~> 2.3'
   gem 'erubi'
@@ -64,7 +68,7 @@ group :plugins do
   gem 'nokogiri', '~> 1.8'
   gem 'nokogumbo', '~> 2.0', platforms: :ruby
   gem 'pandoc-ruby'
-  gem 'pygments.rb', '~> 1.2', platforms: :ruby
+  gem 'pygments.rb', '~> 2.0', platforms: :ruby
   gem 'rack'
   gem 'rainpress'
   gem 'rdiscount', '~> 2.2', platforms: :ruby

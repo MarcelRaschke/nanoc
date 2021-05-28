@@ -15,7 +15,7 @@ Gem::Specification.new do |s|
   s.files         = ['NEWS.md', 'README.md'] + Dir['lib/**/*.rb'] + Dir['lib/**/*-schema.json']
   s.require_paths = ['lib']
 
-  s.required_ruby_version = '~> 2.4'
+  s.required_ruby_version = '>= 2.6'
 
   s.add_runtime_dependency('concurrent-ruby', '~> 1.1')
   s.add_runtime_dependency('ddmemoize', '~> 1.0')
@@ -24,7 +24,6 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency('hamster', '~> 3.0')
   s.add_runtime_dependency('json_schema', '~> 0.19')
   s.add_runtime_dependency('slow_enumerator_tools', '~> 1.0')
-  s.add_runtime_dependency('tomlrb', '~> 1.2')
   s.add_runtime_dependency('tty-platform', '~> 0.2')
   s.add_runtime_dependency('zeitwerk', '~> 2.1')
 end

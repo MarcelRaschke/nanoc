@@ -92,14 +92,16 @@ module Nanoc::DataSources
       require 'listen'
 
       Nanoc::Core::ChangesStream.new do |cl|
-        listener =
-          Listen.to(dir, latency: 0.1, wait_for_delay: 0.0) do |_modifieds, _addeds, _deleteds|
-            cl.unknown
-          end
+        if dir
+          listener =
+            Listen.to(File.expand_path(dir)) do |_modifieds, _addeds, _deleteds|
+              cl.unknown
+            end
 
-        listener.start
+          listener.start
 
-        cl.to_stop { listener.stop }
+          cl.to_stop { listener.stop }
+        end
 
         sleep
       end
@@ -181,6 +183,8 @@ module Nanoc::DataSources
       res = []
 
       return [] if dir_name.nil?
+
+      dir_name = Tools.expand_and_relativize_path(dir_name)
 
       each_content_meta_pair_in(dir_name) do |content_filename, meta_filename|
         proto_doc = read_proto_document(content_filename, meta_filename, klass)
@@ -295,6 +299,8 @@ module Nanoc::DataSources
     #     'content/qux' => [ nil,    ['html']       ]
     #   }
     def all_split_files_in(dir_name)
+      dir_name = Tools.expand_and_relativize_path(dir_name)
+
       by_basename =
         all_files_in(dir_name)
         .reject   { |fn| fn =~ /(~|\.orig|\.rej|\.bak)$/ }

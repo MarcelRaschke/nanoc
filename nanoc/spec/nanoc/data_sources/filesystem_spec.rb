@@ -12,8 +12,9 @@ describe Nanoc::DataSources::Filesystem, site: true do
   let(:now) { Time.local(2008, 1, 2, 14, 5, 0) }
 
   describe '#load_objects' do
-    subject { data_source.send(:load_objects, 'foo', klass) }
+    subject { data_source.send(:load_objects, dir_with_objects, klass) }
 
+    let(:dir_with_objects) { 'foo' }
     let(:klass) { raise 'override me' }
 
     context 'items' do
@@ -242,16 +243,48 @@ describe Nanoc::DataSources::Filesystem, site: true do
           expect(subject[0].attributes[:author]).to eq('Denis')
         end
       end
+
+      context 'content file outside of current working directory' do
+        let(:params) { { identifier_type: 'full' } }
+
+        let(:dir_with_objects) { Dir.mktmpdir }
+
+        before do
+          File.write(File.join(dir_with_objects, 'foo.txt'), "---\ntitle: I am foo\n---\n\nHi!")
+        end
+
+        it 'assigns metadata to the file that doesn’t have any yet' do
+          expect(subject.size).to eq(1)
+
+          items = subject.sort_by { |i| i.identifier.to_s }
+
+          expect(items[0].content).to be_a(Nanoc::Core::TextualContent)
+          expect(items[0].identifier).to eq(Nanoc::Core::Identifier.new('/foo.txt', type: :full))
+          expect(items[0].attributes[:title]).to eq('I am foo')
+          expect(items[0].attributes[:content_filename]).to start_with('../')
+          expect(items[0].attributes[:content_filename]).to end_with('/foo.txt')
+        end
+      end
     end
   end
 
-  describe '#item_changes' do
-    subject { data_source.item_changes }
+  describe '#changes_for_dir' do
+    subject { data_source.changes_for_dir(temp_dir_base_unexpanded) }
+
+    let(:temp_dir_base_unexpanded) { '~/tmp_nanoc_Mj2glnoP' }
+    let(:temp_dir_base_expanded) { File.expand_path(temp_dir_base_unexpanded) }
+    let(:temp_dir) { Dir.mktmpdir(nil, temp_dir_base_expanded) }
 
     before do
       if Nanoc::Core.on_windows?
         skip 'nanoc-live is not currently supported on Windows'
       end
+
+      FileUtils.mkdir_p(temp_dir_base_expanded)
+    end
+
+    after do
+      FileUtils.rm_rf(temp_dir_base_expanded)
     end
 
     it 'returns a stream' do
@@ -259,46 +292,26 @@ describe Nanoc::DataSources::Filesystem, site: true do
     end
 
     it 'contains one element after changing' do
-      FileUtils.mkdir_p('content')
+      FileUtils.mkdir_p(File.join(temp_dir, 'content'))
 
       enum = SlowEnumeratorTools.buffer(subject.to_enum, 1)
       q = SizedQueue.new(1)
       Thread.new { q << enum.take(1).first }
 
-      # FIXME: sleep is ugly
-      sleep 0.3
-      File.write('content/wat.md', 'stuff')
-
-      expect(q.pop).to eq(:unknown)
-      subject.stop
-    end
-  end
-
-  describe '#layout_changes' do
-    subject { data_source.layout_changes }
-
-    before do
-      if Nanoc::Core.on_windows?
-        skip 'nanoc-live is not currently supported on Windows'
+      # Try until we find a change
+      ok = false
+      20.times do |i|
+        File.write(File.join(temp_dir, 'content/wat.md'), "stuff #{i}")
+        begin
+          expect(q.pop(true)).to eq(:unknown)
+          ok = true
+          break
+        rescue ThreadError
+          sleep 0.1
+        end
       end
-    end
+      expect(ok).to be(true)
 
-    it 'returns a stream' do
-      expect(subject).to be_a(Nanoc::Core::ChangesStream)
-    end
-
-    it 'contains one element after changing' do
-      FileUtils.mkdir_p('layouts')
-
-      enum = SlowEnumeratorTools.buffer(subject.to_enum, 1)
-      q = SizedQueue.new(1)
-      Thread.new { q << enum.take(1).first }
-
-      # FIXME: sleep is ugly
-      sleep 0.3
-      File.write('layouts/wat.md', 'stuff')
-
-      expect(q.pop).to eq(:unknown)
       subject.stop
     end
   end
